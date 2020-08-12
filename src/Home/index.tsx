@@ -38,10 +38,10 @@ const Home: React.FC = () => {
   const [city, setCity] = useState<cityProps | null>(null);
 
   function handleSeacrhWeather() {
-
+console.log(process.env);
     axios.get('http://api.openweathermap.org/data/2.5/weather', {
       params: {
-        appid: 'b656819b099f4389047e7edd408cbe9f',
+        appid: process.env.REACT_APP_API_WEATHER_KEY,
         q: searchCity,
       }
     }).then(response => {
