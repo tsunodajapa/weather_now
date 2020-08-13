@@ -52,8 +52,8 @@ export default createGlobalStyle`
 
   :root {
     --primary: #ECE7E7;
-    --primary-pink: #E1A4A4;
-    --secondary-pink: #E7C0C0;
+    --primary-pink: #d68787;
+    --secondary-pink: #a78a8a;
     --white: #FFF;
   }
 `;

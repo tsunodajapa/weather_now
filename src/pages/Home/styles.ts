@@ -1,4 +1,8 @@
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
+
+interface ContentProps {
+  render: boolean;
+}
 
 const Container = styled.div`
   @media (min-width: 1024px) {
@@ -48,9 +52,19 @@ const Form = styled.form`
   }
 `;
 
-const Content = styled.div`
+const Content = styled.div<ContentProps>`
   background: var(--secondary-pink);
   height: calc(85vh - 15px);
+  ${({ render }) =>
+    render
+      ? css`
+          transform: translateY(0);
+          max-height: 1000px;
+        `
+      : css`
+          transform: translateY(100vh);
+          max-height: 0px;
+        `};
 
   display: flex;
   flex-direction: column;
@@ -59,6 +73,8 @@ const Content = styled.div`
 
   margin-top: 15px;
   border-radius: 45px 45px 0px 0px;
+
+  transition: transform 1.2s;
 
   > svg {
     width: 14rem !important;
@@ -174,6 +190,24 @@ const Table = styled.table`
   }
 `;
 
+const umbrellaAnimate = keyframes`
+  20%{
+    transform: rotate(15deg);
+  }
+  40%{
+    transform: rotate(-15deg);
+  }
+  60%{
+    transform: rotate(-15deg);
+  }
+  80%{
+    transform: rotate(15deg);
+  }
+  100%{
+    transform: rotate(0deg);
+  }
+`;
+
 const MessageContainer = styled.div`
   height: 32rem;
 
@@ -185,11 +219,13 @@ const MessageContainer = styled.div`
   svg {
     width: 8rem !important;
     height: 8rem !important;
+    animation: ${umbrellaAnimate} 0.2s;
   }
 
   span {
     font-family: "Archivo";
     font-size: 1.2rem;
+    text-align: center;
   }
 `;
 
@@ -214,5 +250,5 @@ export {
   Wrapper,
   Table,
   MessageContainer,
-  TableContainer
+  TableContainer,
 };

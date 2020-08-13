@@ -1,4 +1,4 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useEffect, useState, FormEvent } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faUmbrella, faArrowRight } from '@fortawesome/free-solid-svg-icons';
@@ -50,10 +50,13 @@ const Home: React.FC = () => {
   const [latestSearches, setLatestSearches] = useState<cityProps[]>();
   const [completeHistory, setCompleteHistory] = useState<cityProps[]>();
 
-  const [isOpenModal, setIsOpenModal] = useState(true);
+  const [isOpenModal, setIsOpenModal] = useState(false);
+
+  const [message, setMessage] = useState('Enter the name of a city above');
 
   async function handleSeacrhWeather(e: FormEvent) {
 
+    // stop default event submit
     e.preventDefault();
 
     try {
@@ -62,19 +65,96 @@ const Home: React.FC = () => {
       const response = await weatherServices.getWeather(searchCity);
 
       // format date
-      await formatWeather(response);
+      const cityWeather = await formatWeather(response);
+      setCity(cityWeather);
 
-      // checkTopFive();
+      // update list of latest searches and complete history
+      if (latestSearches && completeHistory) {
+        setCompleteHistory([cityWeather, ...completeHistory]);
+        setLatestSearches([cityWeather, latestSearches[0]]);
+      } else {
+        setCompleteHistory([cityWeather]);
+        setLatestSearches([cityWeather]);
+      }
+
+      setMessage('');
 
     } catch (err) {
-      console.log(err);
+      const { status } = err.response;
+
+      setCity(undefined);
+      setMessage('');
+      console.log(status);
+      if (status == 404) {
+        console.log('error 404');
+
+        setMessage('The city you are looking for is not in our database');
+      } else if (status == 400) {
+        setMessage('Invalid parameter, enter a valid city');
+      }
     }
 
   }
 
-  // useEffect(()=> checkTopFive, [city]);
+  // execute after it changes the city
+  // counts the cities with the same id and groups
+  useEffect(() => {
+    if (city) {
+      if (citiesGroup) {
+        const [cityFiltered] = citiesGroup.filter(cityGroup => cityGroup.city.id === city.id);
+
+        if (cityFiltered) {
+          const updatedCitiesGroup = citiesGroup.map(cityGroup => {
+            if (cityGroup.city.id === cityFiltered.city.id) {
+              return {
+                ...cityGroup,
+                count: ++cityGroup.count
+              };
+            }
+
+            return cityGroup;
+          });
+          setCitiesGroup([...updatedCitiesGroup]);
+        } else {
+
+          setCitiesGroup([...citiesGroup, {
+            city: city,
+            count: 1
+          }]);
+        }
+
+      } else {
+        setCitiesGroup([{
+          city: city,
+          count: 1
+        }]);
+      }
+    }
+  }, [city]);
+
+  // execute after it changes the cities group
+  // orders the group from largest to smallest and selects the 5 first
+  useEffect(() => {
+    if (citiesGroup) {
+      const sortCitiesGroup = citiesGroup.sort((cityA, cityB) => {
+        if (cityA.count > cityB.count) {
+          return -1;
+        } else if (cityA.count < cityB.count) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
+      const slicedCitiesGroup = sortCitiesGroup.slice(0, 6);
+
+      setTopFive(slicedCitiesGroup);
+    }
+  }, [citiesGroup]);
 
   async function formatWeather(response: any) {
+
+    // format date
     const formattedDate = format(
       new Date(),
       'dd/MM/yyyy HH:mm:s'
@@ -91,77 +171,37 @@ const Home: React.FC = () => {
       search_time: formattedDate
     };
 
-    setCity(cityWeather);
-
-    // update list of latest searches
-    if (latestSearches && completeHistory) {
-      setCompleteHistory([cityWeather, ...completeHistory]);
-      setLatestSearches([cityWeather, latestSearches[0]]);
-    } else {
-      setCompleteHistory([cityWeather]);
-      setLatestSearches([cityWeather]);
-    }
-
-    checkTopFive(cityWeather);
-  }
-
-
-  function checkTopFive(cityWeather: cityProps) {
-
-    let newCitiesGroup;
-
-    if (citiesGroup) {
-      const [cityFiltered] = citiesGroup.filter(cityGroup => cityGroup.city.id === cityWeather.id);
-
-      if (cityFiltered) {
-        const updatedCitiesGroup = citiesGroup.map(cityGroup => {
-          if (cityGroup.city.id === cityFiltered.city.id) {
-            return {
-              ...cityGroup,
-              count: ++cityGroup.count
-            };
-          }
-
-          return cityGroup;
-        });
-        newCitiesGroup = [...updatedCitiesGroup];
-        setCitiesGroup(newCitiesGroup);
-      } else {
-        newCitiesGroup = [...citiesGroup, {
-          city: cityWeather,
-          count: 1
-        }];
-
-        setCitiesGroup(newCitiesGroup);
-      }
-
-    } else {
-      newCitiesGroup = [{
-        city: cityWeather,
-        count: 1
-      }];
-
-      setCitiesGroup(newCitiesGroup);
-    }
-
-    const sortCitiesGroup = newCitiesGroup.sort((cityA, cityB) => {
-      if (cityA.count > cityB.count) {
-        return -1;
-      } else if (cityA.count < cityB.count) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-
-    const slicedCitiesGroup = sortCitiesGroup.slice(0, 6);
-
-    setTopFive(slicedCitiesGroup);
-
+    return cityWeather;
   }
 
   function handleToggleModal() {
     setIsOpenModal(!isOpenModal);
+  }
+  
+  //updates the top five every 15 seconds
+  setTimeout(UpdataWeatherTopFive, 15000);
+
+  async function UpdataWeatherTopFive() {
+    if (topFive) {
+      const topFiveNewWeather = topFive.map(async cityGroup => {
+        const response = await weatherServices.getWeather(cityGroup.city.name);
+
+        // format date
+        const cityWeather = await formatWeather(response);
+
+        return {
+          city: cityWeather,
+          count: cityGroup.count
+        };
+      });
+
+      // execute all promisses and update top five
+      Promise.all(topFiveNewWeather).then(topFiveUpdated => {
+        console.log('Updated Top Five');
+
+        setTopFive(topFiveUpdated);
+      });
+    }
   }
 
   return (
@@ -173,36 +213,38 @@ const Home: React.FC = () => {
               <Input name="city" label="City" onChange={e => setSearchCity(e.target.value)} />
               <Button type="submit"> Buscar</Button>
             </Form>
-            {city !== undefined ?
-              <Content>
-                <Location>
-                  <img src={`http://openweathermap.org/img/wn/${city.icon}@2x.png`} alt="" />
-                  <span>
-                    {city.name}
-                  </span>
-                  <span>{city.country}</span>
-                </Location>
 
-                <Temperature>
-                  <span>
-                    {city.temp}°
-                <span>C</span>
-                  </span>
-                  <br />
-                  <span>
-                    {city.weather_description}
-                  </span>
-                </Temperature>
+            <Content render={city ? true : false}>
+              {city &&
+                <>
+                  <Location>
+                    <img src={`http://openweathermap.org/img/wn/${city.icon}@2x.png`} alt="" />
+                    <span>
+                      {city.name}
+                    </span>
+                    <span>{city.country}</span>
+                  </Location>
+                  <Temperature>
+                    <span>
+                      {city.temp}°
+                    <span>C</span>
+                    </span>
+                    <br />
+                    <span>
+                      {city.weather_description}
+                    </span>
+                  </Temperature>
 
-                <Humidity humidity={city.humidity} />
-              </Content>
-
-              :
+                  <Humidity humidity={city.humidity} />
+                </>
+              }
+            </Content>
+            {message &&
               <MessageContainer>
                 <FontAwesomeIcon icon={['fas', 'umbrella']} />
                 <span>
-                  Enter the name of a city above
-              </span>
+                  {message}
+                </span>
               </MessageContainer>
             }
           </WeatherSection>
@@ -230,7 +272,7 @@ const Home: React.FC = () => {
                 <Title>Latest Searches</Title>
                 <Button type="button" background="transparent" onClick={handleToggleModal}>
                   Complete history here
-                <FontAwesomeIcon icon={['fas', 'arrow-right']} />
+                  <FontAwesomeIcon icon={['fas', 'arrow-right']} />
                 </Button>
               </div>
 
