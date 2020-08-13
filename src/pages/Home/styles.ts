@@ -2,6 +2,7 @@ import styled, { keyframes, css } from 'styled-components';
 
 interface ContentProps {
   render: boolean;
+  color: string;
 }
 
 const Container = styled.div`
@@ -27,7 +28,7 @@ const Main = styled.main`
 `;
 
 const WeatherSection = styled.section`
-  background: var(--primary-pink);
+  background: var(--primary-blue);
   height: 100vh;
 
   padding-top: 15px;
@@ -53,7 +54,6 @@ const Form = styled.form`
 `;
 
 const Content = styled.div<ContentProps>`
-  background: var(--secondary-pink);
   height: calc(85vh - 15px);
   ${({ render }) =>
     render
@@ -65,6 +65,12 @@ const Content = styled.div<ContentProps>`
           transform: translateY(100vh);
           max-height: 0px;
         `};
+
+  ${({ color }) =>
+    css`
+      background: linear-gradient(192deg, ${color} 10%, var(--secondary-blue) 38%);
+    `
+  }
 
   display: flex;
   flex-direction: column;
@@ -135,7 +141,7 @@ const ContainerHistoric = styled.div`
 
 const MostSearchedSection = styled.section`
   h4 {
-    color: var(--primary-pink);
+    color: var(--primary-blue);
   }
 
   @media (min-width: 1024px) {
@@ -161,7 +167,7 @@ const LatestSearchesSection = styled.section`
 `;
 
 const Title = styled.h2`
-  color: var(--primary-pink);
+  color: var(--primary-blue);
   text-align: center;
   margin: 15px 0;
 `;
@@ -180,12 +186,12 @@ const Table = styled.table`
   text-align: center;
 
   tr th {
-    background: var(--primary-pink);
+    background: var(--primary-blue);
     padding: 15px;
   }
 
   tr td {
-    background: var(--secondary-pink);
+    background: var(--secondary-blue);
     padding: 10px;
   }
 `;
@@ -230,9 +236,9 @@ const MessageContainer = styled.div`
 `;
 
 const TableContainer = styled.div`
-  overflow: auto;
   max-width: calc(100vw - 30px);
   max-height: calc(100vh - 30px);
+  overflow: auto;
 `;
 
 export {

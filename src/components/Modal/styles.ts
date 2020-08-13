@@ -6,10 +6,12 @@ interface ModalProps {
 
 const Container = styled.div<ModalProps>`
   background: rgba(0, 0, 0, 0.8);
-  position: absolute;
+  position: fixed;
   width: 100vw;
   height: 100vh;
   top: 0;
+
+
 
   ${({ isOpen }) =>
     isOpen
@@ -20,6 +22,7 @@ const Container = styled.div<ModalProps>`
           display: none;
         `};
   justify-content: center;
+  align-items: center;
 
   z-index: 1001;
 

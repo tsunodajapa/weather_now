@@ -13,7 +13,7 @@ const Button = styled.button<ButtonProps>`
 
     border-radius: 5px;
 
-    color: var(--primary-pink);
+    color: var(--primary-blue);
     font-size: 1.2rem;
 
     cursor: pointer;

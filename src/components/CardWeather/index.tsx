@@ -13,6 +13,7 @@ export interface cityProps {
   weather_description: string;
   icon: string;
   search_time: string;
+  color: string;
 }
 
 interface CardProps {

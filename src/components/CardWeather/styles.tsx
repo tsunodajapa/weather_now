@@ -33,7 +33,7 @@ const Card = styled.button<CardProps>`
 `;
 
 const CardModel = styled.div`
-    background: var(--secondary-pink);
+    background: var(--secondary-blue);
     
     position: absolute;
     top: 0;
@@ -70,7 +70,7 @@ const Placing = styled.div`
 
     font-family: 'Poppins';
     font-size: 2.6rem;
-    color: var(--secondary-pink);
+    color: var(--secondary-blue);
     text-align: center;
 `;
 

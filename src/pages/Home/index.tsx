@@ -6,7 +6,6 @@ import { faUmbrella, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'date-fns';
 
 import * as weatherServices from '../../services/weather';
-// import pt from 'date-fns/locales/pt';
 
 import {
   Container,
@@ -85,16 +84,29 @@ const Home: React.FC = () => {
       setCity(undefined);
       setMessage('');
       console.log(status);
-      if (status == 404) {
-        console.log('error 404');
-
+      if (status === 404) {
         setMessage('The city you are looking for is not in our database');
-      } else if (status == 400) {
+      } else if (status === 400) {
         setMessage('Invalid parameter, enter a valid city');
+      } else if (status === 429) {
+        setMessage('You have exceeded the search quantity per day');
+      } else if (status === 401) {
+        setMessage('Invalid token! Check the inserted token');
+      } else {
+        setMessage('There was a problem, please try again later');
       }
     }
 
+    setSearchCity('');
+
   }
+
+  //updates the top five every 15 secons 
+  useEffect(() => {
+    const interval = setInterval(() =>UpdataWeatherTopFive(), 15000);
+
+    return () => clearInterval(interval);
+  }, [topFive]);
 
   // execute after it changes the city
   // counts the cities with the same id and groups
@@ -146,7 +158,7 @@ const Home: React.FC = () => {
         }
       });
 
-      const slicedCitiesGroup = sortCitiesGroup.slice(0, 6);
+      const slicedCitiesGroup = sortCitiesGroup.slice(0, 5);
 
       setTopFive(slicedCitiesGroup);
     }
@@ -160,6 +172,8 @@ const Home: React.FC = () => {
       'dd/MM/yyyy HH:mm:s'
     );
 
+    const color = switchColorBackground(response.data.weather[0].icon);
+
     const cityWeather = {
       id: response.data.id,
       name: response.data.name,
@@ -168,7 +182,8 @@ const Home: React.FC = () => {
       country: response.data.sys.country,
       weather_description: response.data.weather[0].description,
       icon: response.data.weather[0].icon,
-      search_time: formattedDate
+      search_time: formattedDate,
+      color
     };
 
     return cityWeather;
@@ -177,15 +192,16 @@ const Home: React.FC = () => {
   function handleToggleModal() {
     setIsOpenModal(!isOpenModal);
   }
-  
-  //updates the top five every 15 seconds
-  setTimeout(UpdataWeatherTopFive, 15000);
 
-  async function UpdataWeatherTopFive() {
+  function UpdataWeatherTopFive() {
+    console.log('aqui');
+    console.log(topFive);
     if (topFive) {
+      console.log('aqu2');
+
       const topFiveNewWeather = topFive.map(async cityGroup => {
         const response = await weatherServices.getWeather(cityGroup.city.name);
-
+        console.log('aqu2');
         // format date
         const cityWeather = await formatWeather(response);
 
@@ -198,10 +214,37 @@ const Home: React.FC = () => {
       // execute all promisses and update top five
       Promise.all(topFiveNewWeather).then(topFiveUpdated => {
         console.log('Updated Top Five');
-
+        console.log(topFiveUpdated);
         setTopFive(topFiveUpdated);
       });
     }
+  }
+
+  function switchColorBackground(type: string) {
+    let color;
+
+    switch (type) {
+      case '01d':
+      case '02d':
+      case '10d':
+        color = '#e2965f';
+        break;
+
+      case '04d':
+      case '09d':
+      case '11d':
+      case '13d':
+      case '03d':
+        color = '#102a49';
+        break;
+
+      //case night
+      default:
+        color = '#2a3132';
+        break;
+    }
+
+    return color;
   }
 
   return (
@@ -210,11 +253,11 @@ const Home: React.FC = () => {
         <Main>
           <WeatherSection>
             <Form onSubmit={handleSeacrhWeather}>
-              <Input name="city" label="City" onChange={e => setSearchCity(e.target.value)} />
-              <Button type="submit"> Buscar</Button>
+              <Input name="city" label="Search City" value={searchCity} onChange={e => setSearchCity(e.target.value)} />
+              <Button type="submit">Search</Button>
             </Form>
 
-            <Content render={city ? true : false}>
+            <Content render={city ? true : false} color={city?.color || 'transparent'}>
               {city &&
                 <>
                   <Location>
