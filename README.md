@@ -4,7 +4,7 @@
 
 
 
-#### O Weather Now é um site de busca do clima atual de uma cidade. Possuí históico em tempo real de busca, e o top 5 mais buscados.<br> Para facilitar para o usuário, os top 5 ficam atualizando o clima a cada 15 segundos.
+#### O Weather Now é um site de busca do clima atual de uma cidade. Possuí histórico em tempo real de busca, e o top 5 mais buscados.<br> Para facilitar para o usuário, os top 5 ficam atualizando o clima a cada 15 segundos.
 
 ## Requisitos de instalação
 
@@ -17,7 +17,7 @@
 
 #### 1. Primeiramente, é necessário criar um conta (gratuita) em <a href="https://openweathermap.org/api" > openweathermap.org/api </a>.
 
-#### 2. Após a confirmação do cadastro você receberá uma <b>API_KEY</b> em seu e-mail. Na raiz do projeto crie um arquivo '.env' seguindo o parâmetro no arquivo .env.example, substituta 'YOUR_API_KEY_HERE' pela sua <b>API_KEY</b> 
+#### 2. Após a confirmação do cadastro você receberá uma <b>API_KEY</b> em seu e-mail. Na raiz do projeto crie um arquivo '.env' seguindo o parâmetro do arquivo .env.example, substituta 'YOUR_API_KEY_HERE' pela sua <b>API_KEY</b> 
 
 
 #### Execute o comando para instalações de dependências:
