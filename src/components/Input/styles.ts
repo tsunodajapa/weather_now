@@ -6,13 +6,12 @@ const Block = styled.div`
   color: var(--white);
 
   label {
-      background: var(--primary-pink);
-      position: absolute;
-      top: -12px;
-      left: 15px;
+    background: var(--primary-pink);
+    position: absolute;
+    top: -12px;
+    left: 15px;
 
-      font-weight: bold;
-      font-size: 1.2rem;
+    font-size: 1.2rem;
   }
 
   input {
@@ -21,13 +20,13 @@ const Block = styled.div`
 
     border: 2px solid var(--white);
     border-radius: 5px;
-    padding: 5px;
-
+    padding: 5px 10px;
+ 
     font-size: 1.2rem;
   }
 
   input:focus {
-    outline: none
+    outline: none;
   }
 `;
 
