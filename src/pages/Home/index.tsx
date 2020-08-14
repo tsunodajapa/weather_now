@@ -194,14 +194,11 @@ const Home: React.FC = () => {
   }
 
   function UpdataWeatherTopFive() {
-    console.log('aqui');
-    console.log(topFive);
     if (topFive) {
-      console.log('aqu2');
 
       const topFiveNewWeather = topFive.map(async cityGroup => {
         const response = await weatherServices.getWeather(cityGroup.city.name);
-        console.log('aqu2');
+
         // format date
         const cityWeather = await formatWeather(response);
 
@@ -213,8 +210,6 @@ const Home: React.FC = () => {
 
       // execute all promisses and update top five
       Promise.all(topFiveNewWeather).then(topFiveUpdated => {
-        console.log('Updated Top Five');
-        console.log(topFiveUpdated);
         setTopFive(topFiveUpdated);
       });
     }
