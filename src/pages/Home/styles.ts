@@ -36,6 +36,10 @@ const WeatherSection = styled.section`
   @media (min-width: 1024px) {
     height: auto;
     width: 28rem;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 `;
 
